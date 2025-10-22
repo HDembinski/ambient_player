@@ -4,9 +4,9 @@ After=network.target
 
 [Service]
 Type=simple
-User=pi
-WorkingDirectory=~/ambient_player
-ExecStart=~/ambient_player/start.sh
+User=USER
+WorkingDirectory=/PATH/ambient_player
+ExecStart=/PATH/ambient_player/start.sh
 Restart=on-failure
 RestartSec=5s
 

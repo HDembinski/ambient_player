@@ -2,6 +2,8 @@
 
 ## Setup on the RaspberryPI
 
+Replace the USER to your username and PATH in `ambient_player.service` to this project path.
+
 Copy the file `ambient_player.service` to `/etc/systemd/system/`
 
 Reload systemd to recognize the new service:
