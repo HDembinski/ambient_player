@@ -15,17 +15,17 @@ sudo systemctl daemon-reload
 Enable the service to start on boot:
 
 ```sh
-sudo systemctl enable mywebserver.service
+sudo systemctl enable ambient_player.service
 ```
 
 Start the service now:
 
 ```sh
-sudo systemctl start mywebserver.service
+sudo systemctl start ambient_player.service
 ```
 
 Check the status:
 
 ```sh
-sudo systemctl status mywebserver.service
+sudo systemctl status ambient_player.service
 ```
