@@ -1,12 +1,14 @@
 [Unit]
 Description=Ambient Player Web Server
-After=network.target
+After=network.target sound.target
 
 [Service]
 Type=simple
 User=USER
 WorkingDirectory=/PATH/ambient_player
 ExecStart=/PATH/ambient_player/start.sh
+Environment="XDG_RUNTIME_DIR=/run/user/USERID"
+Environment="PULSE_RUNTIME_PATH=/run/user/USERID/pulse"
 Restart=on-failure
 RestartSec=5s
 

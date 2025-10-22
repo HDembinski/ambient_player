@@ -4,7 +4,11 @@
 
 ### Systemd Service
 
-Replace the USER to your username and PATH in `ambient_player.service` to this project path.
+Replace in `ambient_player.service`
+
+- USER with your username
+- PATH to this project path
+- USERID with your user ID (`id -u USER`)
 
 Copy the file `ambient_player.service` to `/etc/systemd/system/`
 
