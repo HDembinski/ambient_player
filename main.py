@@ -3,6 +3,7 @@ from fastapi.responses import FileResponse
 import threading
 import vlc  # using python-vlc for streaming
 from pathlib import Path
+import subprocess as subp
 
 app = FastAPI()
 
@@ -10,22 +11,27 @@ app = FastAPI()
 STREAM_URL = "http://ec3.yesstreaming.net:3540/stream"
 THIS_DIR = Path(__file__).parent
 
+
+def command_result(cmd: str) -> str:
+    return subp.run(cmd.split(), text=True, stdout=subp.PIPE).stdout.strip()
+
+
+def get_bluetooth_device():
+    return command_result("bluetoothctl devices Paired").split()[1]
+
+
 state_lock = threading.Lock()
 is_playing = False
-player = None
+player = vlc.MediaPlayer(STREAM_URL)
+bluetooth_device = get_bluetooth_device()
 
 
 def start_stream():
-    global player
-    player = vlc.MediaPlayer(STREAM_URL)
     player.play()
 
 
 def stop_stream():
-    global player
-    if player:
-        player.stop()
-        player = None
+    player.stop()
 
 
 # Serve static files
