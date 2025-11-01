@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <title>Nature Sounds</title>
@@ -14,6 +15,7 @@
       margin: 0;
       font-family: sans-serif;
     }
+
     button {
       background-color: #4caf50;
       width: 90%;
@@ -22,35 +24,68 @@
       color: white;
       font-size: 10em;
       border-radius: 10%;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
       cursor: pointer;
       transition: background 0.3s;
     }
+
     button:hover {
       background-color: #45a049;
     }
   </style>
 </head>
+
 <body>
-  <button id="playButton">⏳</button>
+  <button id="playButton"></button>
 
   <script>
     const button = document.getElementById("playButton");
+    let intervalId = null;
+
+    async function handleResponse(response) {
+      if (!response.ok)
+        button.textContent = "⚠️";
+      else {
+        const data = await response.json();
+        button.textContent = data ? "⏸" : "▶︎";
+      }
+    }
 
     async function updateButton() {
       const response = await fetch("/state");
-      const data = await response.json();
-      button.textContent = data ? "⏸" : "▶︎";
+      handleResponse(response);
     }
 
     async function togglePlayback() {
+      button.textContent = "";
       const response = await fetch("/toggle", { method: "POST" });
-      const data = await response.json();
-      button.textContent = data ? "⏸" : "▶︎";
+      handleResponse(response);
     }
 
+    function startPolling() {
+      if (!intervalId) {
+        updateButton(); // Immediate update
+        intervalId = setInterval(updateButton, 500);
+      }
+    }
+
+    function stopPolling() {
+      clearInterval(intervalId);
+      intervalId = null;
+    }
+
+    // Pause polling when tab is hidden
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden) {
+        stopPolling();
+      } else {
+        startPolling();
+      }
+    });
+
     button.addEventListener("click", togglePlayback);
-    updateButton();
+    startPolling();
   </script>
 </body>
+
 </html>
