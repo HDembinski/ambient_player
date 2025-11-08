@@ -4,11 +4,15 @@ from pathlib import Path
 import asyncio
 import subprocess
 from collections.abc import Iterable
+from datetime import timedelta, datetime
 
 app = FastAPI()
 
 PROJECT_PATH = Path(__file__).parent.parent.parent
 MEDIA_PATH = PROJECT_PATH / "media"
+
+# stop playing after 8 hours
+MAX_DURATION_IN_SECONDS = 8 * 3600
 
 
 class Player:
@@ -20,10 +24,16 @@ class Player:
         self._task = None
         self._proc = None
         self._playing = False
+        self._start_time = None
 
     async def _loop(self):
         self._current = 0
-        while self._playing:
+        self._start_time = datetime.now()
+        while (
+            self._playing
+            and (datetime.now() - self._start_time).total_seconds()
+            < MAX_DURATION_IN_SECONDS
+        ):
             if self._current >= len(self.files):
                 self._current = 0
 
