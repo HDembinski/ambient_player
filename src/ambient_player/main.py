@@ -60,9 +60,10 @@ class Player:
         self._playing = False
         if self.is_playing:
             self._proc.terminate()
-            self._proc.wait()
-            self._proc.kill()
-            self._proc.wait()
+            await self._proc.wait()
+            if self.is_playing:
+                self._proc.kill()
+                await self._proc.wait()
 
     @property
     def is_playing(self) -> bool:
