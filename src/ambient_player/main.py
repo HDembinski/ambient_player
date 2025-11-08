@@ -7,17 +7,19 @@ from collections.abc import Iterable
 
 app = FastAPI()
 
-THIS_PATH = Path(__file__).parent
-MEDIA_PATH = THIS_PATH / "media"
+PROJECT_PATH = Path(__file__).parent.parent.parent
+MEDIA_PATH = PROJECT_PATH / "media"
 
 
 class Player:
     def __init__(self, files: Iterable[Path]):
         self.files = list(files)
+        if not self.files:
+            raise ValueError("empty file list")
         self._current = 0
-        self._playing = False
         self._task = None
         self._proc = None
+        self._playing = False
 
     async def _loop(self):
         self._current = 0
@@ -29,6 +31,8 @@ class Player:
             self._proc = await asyncio.create_subprocess_exec(
                 "mpg123",
                 "-q",
+                "-k",
+                "100",
                 file,
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL,
@@ -37,20 +41,19 @@ class Player:
             self._current += 1
 
     async def play(self):
-        if not self._playing:
-            self._playing = True
-            self._task = asyncio.create_task(self._loop())
+        if self.is_playing:
+            await self.stop()
+        self._playing = True
+        self._task = asyncio.create_task(self._loop())
 
     async def stop(self):
         self._playing = False
-        if self._proc and self._proc.returncode is None:
+        if self.is_playing:
             self._proc.terminate()
-        if self._task:
-            await asyncio.sleep(0)  # Let loop exit cleanly
 
     @property
-    def is_playing(self):
-        return self._playing
+    def is_playing(self) -> bool:
+        return bool(self._proc and self._proc.returncode is None)
 
 
 player = Player(MEDIA_PATH.glob("*.mp3"))
@@ -58,7 +61,7 @@ player = Player(MEDIA_PATH.glob("*.mp3"))
 
 @app.get("/")
 async def index() -> HTMLResponse:
-    with open(THIS_PATH / "static/index.html", encoding="utf-8") as f:
+    with open(PROJECT_PATH / "static/index.html", encoding="utf-8") as f:
         return HTMLResponse(f.read())
 
 
@@ -77,7 +80,11 @@ async def toggle_playback() -> bool:
         return True
 
 
-if __name__ == "__main__":
+def main():
     import uvicorn
 
-    uvicorn.run("main:app", host="0.0.0.0", port=8100, reload=False)
+    uvicorn.run("ambient_player.main:app", host="0.0.0.0", port=8100, reload=False)
+
+
+if __name__ == "__main__":
+    main()

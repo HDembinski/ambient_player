@@ -5,8 +5,6 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = ["fastapi>=0.119.1", "uvicorn[standard]"]
-[project.scripts]
-ambient_player = "ambient_player.main:app"
 
 [dependency-groups]
 dev = ["anyio>=4.11.0", "pytest>=8.4.2"]
